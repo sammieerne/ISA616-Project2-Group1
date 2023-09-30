@@ -1,5 +1,5 @@
 # ISA 616- Project 2 Repository
-This is a repository for Samantha Erne and Amber Kopitke's Project 2 files for ISA 616. 
+This is a repository for Samantha Erne and Amber Kopitke's Project 2 files for ISA616 with Dr. Farmer. 
 
 ## Project Overview
 For Project 2, we will be creating data visualizations on Tableau for our clients: Mr. Kirk Bogard and his team at Miami University's Farmer School of Business. Our clients would like us to create data visualizations to generate insights based on past FSB graduate data. 
