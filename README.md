@@ -14,6 +14,6 @@ Our Tableau visualizations will use maps, dashboards, and charts to show regiona
 
 [Business Value Proposition](https://github.com/sammieerne/ISA616-Project2-Group1/tree/0e9ea81bd7ddf07e85990dedd7d690238b80434e/BusinessValueProposition): This folder contains our business value proposition for the project, where we describe in detail who our clients are, what we will be delivering to them, and what they will gain from our solution. 
 
-FSBGradData: Contains data files with information on Farmer School of Business graduate career outcomes for graduates in 2019, 2020, and 2021. 
+[FSBGradData](https://github.com/sammieerne/ISA616-Project2-Group1/tree/4513f530001d0047e1b79205b3886958a5f9bbf3/FSBGradData): Contains data files with information on Farmer School of Business graduate career outcomes for graduates in 2019, 2020, and 2021. 
 
 Images: Contains images used in our project as well as images used on our GitHub page.
