@@ -13,3 +13,7 @@ Our Tableau visualizations will use maps, dashboards, and charts to show regiona
 ## Folder Descriptions
 
 Business Value Proposition: This folder contains our business value proposition for the project, where we describe in detail who our clients are, what we will be delivering to them, and what they will gain from our solution. 
+
+FSBGradData: Contains data files with information on Farmer School of Business graduate career outcomes for graduates in 2019, 2020, and 2021. 
+
+Images: Contains images used in our project as well as images used on our GitHub page.
