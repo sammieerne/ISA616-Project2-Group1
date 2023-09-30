@@ -7,3 +7,5 @@ For Project 2, we will be creating data visualizations on Tableau for our client
 <img src=https://github.com/sammieerne/ISA616-Project2-Group1/blob/3c9d21389a91788456a8c4f752f56b5613f95072/Images/farmer.jpg width=75% height=75%>
 
 ## Folder Descriptions
+
+Business Value Proposition: This folder contains our business value proposition for the project, where we describe in detail who our clients are, what we will be delivering to them, and what they will gain from our solution. 
