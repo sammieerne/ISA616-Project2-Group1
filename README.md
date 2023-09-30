@@ -16,4 +16,4 @@ Our Tableau visualizations will use maps, dashboards, and charts to show regiona
 
 [FSBGradData](https://github.com/sammieerne/ISA616-Project2-Group1/tree/4513f530001d0047e1b79205b3886958a5f9bbf3/FSBGradData): Contains data files with information on Farmer School of Business graduate career outcomes for graduates in 2019, 2020, and 2021. 
 
-Images: Contains images used in our project as well as images used on our GitHub page.
+[Images](https://github.com/sammieerne/ISA616-Project2-Group1/tree/3405db9f4ee7efd78cbeeafbef847d0f9f33da67/Images): Contains images used in our project as well as images used on our GitHub page.
