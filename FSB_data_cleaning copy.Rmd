@@ -52,13 +52,15 @@ To start cleaning the data, we want to check and make sure that all columns are 
 sapply(fsb_data, class)
 ```
 
-* year should be integer not character
+During our review of data types, we noticed some columns that we believe should have their type changed.
 
-* survey offers should be numeric
+* `year.x` should be numeric not character
 
-* gender as factor??
+* `survey_offers` should be numeric not character
 
-* race as factor?
+* `gender` should be factor not character (???)
+
+* `IPEDS.Race.Ethnicity` should be factor not character (???)
 
 ## Review Column Values
 
