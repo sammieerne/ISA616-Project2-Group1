@@ -46,11 +46,23 @@ Before we can start analyzing the data, we need to clean it. Before we start cle
 
 ## Reviewing Column Types
 
-To start cleaning the data, we want to check and make sure that all columns are of the proper type.  xxx
+To start cleaning the data, we want to check and make sure that all columns are of the proper type. 
 
 ```{r}
 sapply(fsb_data, class)
 ```
+
+* year should be integer not character
+
+* survey offers should be numeric
+
+* gender as factor??
+
+* race as factor?
+
+## Review Column Values
+
+* OH and Ohio and OHIO make one
 
 
 ## Checking for Missing Values
