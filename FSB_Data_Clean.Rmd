@@ -370,6 +370,11 @@ glimpse(fsb_data)
 
 # Documentation
 
-This RMarkdown document was created on RStudio using Version 2023.06.2+561 (2023.06.2+561). This document was originally rendered on 10.12.2023.
+This RMarkdown document was originally rendered on 10.12.2023. Below is the information from our session.
+
+```{r}
+sessionInfo()
+```
+
 
 
