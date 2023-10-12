@@ -35,6 +35,7 @@ In this project, we will be using data collected from 2019-2021 to visualize geo
 
 The Business Value Proposition that we created for this project is pictured below. In this BVP, we described our client, their jobs, and how our solution will both kill their pains as well as provide additional gains to the clients. We plan to create a dashboard to visualize historical geographic trends to help our client better perform his job and create better student outcomes.
 
+
 ![](images/BUSINESS VALUE PROPOSTION.png){width="375"}
 
 ## Data Description
