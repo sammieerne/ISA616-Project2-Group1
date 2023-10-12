@@ -1,0 +1,117 @@
+---
+title: "FSB Student Success Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+#runtime: shiny
+---
+<style>
+  body {
+    background-color: #FF9999; 
+  }
+  
+  .navbar {
+    background-color: red; 
+  }
+  
+  .header-button:active, .header-button:focus, .header-button:hover {
+    background-color: red !important;
+    color: white !important;
+    border-color: red !important;
+  }
+
+</style>
+
+
+
+```{r setup, include=FALSE,echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE,message=FALSE,warning=FALSE)
+
+#package intialization
+if(require(pacman)==FALSE) install.packages("pacman")
+pacman::p_load(tidyverse, #for data manipulation
+               plotly, #for interactive plots
+               flexdashboard, #to make a dashboard
+               fontawesome, #for icons
+               DT #for better tables
+               )
+```
+
+
+
+# Survey Overview {data-orientation=columns}
+
+Overview of survey responses
+  
+## row {data-width=300}
+
+### Response Rate
+
+### Usable Responses
+
+### Students with Jobs
+
+
+
+
+## row {data-height=600}
+
+### Region of Job Placements
+
+### Job Types
+    
+
+
+
+   
+
+# Geography {data-orientation=columns}
+
+## Column {data-width=600}
+
+### Region Placement
+
+### State Placement
+
+
+
+
+## Column {data-width=400}
+
+### Salary by Region
+
+### Salary by City Adjusted for Cost of Living
+
+
+
+# Cost by City {data-orientation=columns}
+
+## Column {data-width=500}
+
+### Chicago
+
+### Columbus
+
+
+## Column {data-width=500}
+
+### Cincinnati
+
+### Cleveland
+
+
+# Cost by Region {data-orientation=columns}
+
+## Column {data-width=500}
+
+### Midwest
+
+### North-East
+
+
+## Column {data-width=500}
+
+### West
+
+### South
+
