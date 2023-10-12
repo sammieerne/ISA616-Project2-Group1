@@ -19,24 +19,23 @@ knitr::opts_chunk$set(fig.width=8, fig.height=6)
 ```
 
 ```{r, include= FALSE}
-install.packages("dplyr") 
-install.packages("readr") 
-install.packages("tidyr") 
+#install.packages("tidyr") 
+#install.packages("readr") 
+#install.packages("dplyr") 
 
 library(dplyr)         
 library(readr)          
-library(tidyr)          
+library(tidyr)
+library(forcats)
 ```
 
 # Project Overview
 
-In this project, we will be using data collected from 2019-2021 to visualize geographic trends of Farmer School of Business graduates. The client for this project is Mr. Kirk Bogard of the FSB External Relations office. 
+In this project, we will be using data collected from 2019-2021 to visualize geographic trends of Farmer School of Business graduates. The client for this project is Mr. Kirk Bogard of the FSB External Relations office.
 
-The Business Value Proposition that we created for this project is pictured below. In this BVP, we described our client, their jobs, and how our solution will both kill their pains as well as provide additional gains to the clients. 
+The Business Value Proposition that we created for this project is pictured below. In this BVP, we described our client, their jobs, and how our solution will both kill their pains as well as provide additional gains to the clients. We plan to create a dashboard to visualize historical geographic trends to help our client better perform his job and creeate better student outcomes.
 
-'''
-BVP PHOTO
-'''
+![](images/BUSINESS VALUE PROPOSTION.png){width="375"}
 
 ## Data Description
 
@@ -45,69 +44,331 @@ The data that we will be using for this project is data collected from graduatin
 Below is a snapshot of the data set before any cleaning has been done. 
 
 ```{r}
-fsb_data <- readRDS("~/Desktop/ISA 616/GitHub/ISA616repo/ISA616-Project2-Group1/FSB_BI_Survey_2019_2021.rds")
-head(fsb_data)
+fsb_data= readRDS("FSB_BI_Survey_2019_2021.rds")
+glimpse(fsb_data)
 ```
 
 # Cleaning the Data
 
-Before we can start analyzing the data, we need to clean it. Before we start cleaning the data, we want to summarize it to gain a better understanding of the data structure and any issues in the data.
+Before we can start analyzing the data, we need to clean it. Before we start cleaning the data, we want to summarize it to gain a better understanding of the data structure and any issues in the data. 
 
-## Remove Unneccessary Columns
+## Review Variables
 
-Firstly, we will start by removing unnecessary columns from the data set. For our project, we will be analyzing geographic trends, which means many of the columns included in the data are not needed in our analysis. The large number of variables makes it difficult to clean the data, so we will start by dropping these variables before we continue cleaning the data.
+To start our analysis, we reviewed all of the columns in the data set. While not all columns are needed for the analysis we are currently performing, we may need to use these columns later. For this reason, we chose to retain all columns in the data set and not remove any columns. We would like to note at this point that we will focusing our cleaning efforts on the variables that we consider to be critical for our analysis, including...
 
-In order to remove unnecessary columns, we will create a new data set with the variables we will need in our analysis.
+* `survey_salary`
 
-```{r}
-fsb_df= fsb_data[c("year.x", "survey_state", "survey_salary", "survey_city", "survey_company", "survey_deptfunc", "survey_plans")]
-```
+* `survey_state`
 
-## Reviewing Column Types
+* `survey_city`
 
-To start cleaning the data, we want to check and make sure that all columns are of the proper type. Let's view a glimpse of our new data set.
+* `survey_deptfunc`
 
-```{r}
-glimpse(fsb_df)
-```
-During our review of data types, we did not find any column types that we felt needed to be changed. 
+* `year.x`
 
 ## Filter Data
 
-Next, we will be filtering the data to only include information about graduates who accepted jobs, excluding graduates who are following other paths such as continuing their education.
-
-
-XXX FINISH THIS XXX
+Next, we will be filtering the data to only include information about graduates who accepted jobs, excluding graduates who are following other paths such as continuing their education. The focus of our project is to understand career outcomes, so data about students that do not have jobs after graduation is not relevant for our analysis.
 
 ```{r}
-table(fsb_df['survey_plans'])
+table(fsb_data['survey_plans'])
+values_to_filter <- c("accepted fulltime job", "accepted parttime job")
+subsetted_data <- subset(fsb_data, survey_plans %in% values_to_filter)
+fsb_data= subsetted_data
+glimpse(fsb_data)
 ```
 
+## Review Values
 
-## Rename Columns
+Next, we will be reviewing values of the columns we plan to use in our analysis to make sure that our data entries are consistent, and fixing any issues that arise. We will focus this effort on the columns that we identified earlier as being critical to our analysis.
 
-Next, we will be renaming the columns to have more consistent and easier to read names. 
+First, we will review and clean the values of `survey_city`. For this column, we will focus on making sure that the values for the 4 C's (Chicago, Cleveland, Cincinnati, and Columbus) match. For example, we will update any typos to make sure that our data is consistent for these city values.
+
+### survey_city
 
 ```{r}
-fsb_df['Graduation_Year']= fsb_df['year.x']
-fsb_df['Job_State']= fsb_df['survey_state']
-fsb_df['Job_Salary']= fsb_df['survey_salary']
-fsb_df['Job_City']= fsb_df['survey_city']
-fsb_df['Employer']= fsb_df['survey_company']
-fsb_df['Job Department']= fsb_df['survey_deptfunc']
-glimpse(fsb_df)
+# check values of survey_city
+value_counts <- fsb_data %>%
+  group_by(survey_city) %>%
+  summarise(Count = n())
+value_counts
 ```
 
+```{r}
+# fix values of survey_city for 4 C's
+fsb_data$survey_city[fsb_data$survey_city == 'CLEVELAND'] <- 'Cleveland'
+fsb_data$survey_city[fsb_data$survey_city == 'Cincinatti'] <- 'Cincinnati'
+fsb_data$survey_city[fsb_data$survey_city == 'Cincinnati, OH'] <- 'Cincinnati'
+fsb_data$survey_city[fsb_data$survey_city == 'Cincinnnati'] <- 'Cincinnati'
+fsb_data$survey_city[fsb_data$survey_city == 'Colubmus'] <- 'Columbus'
+fsb_data$survey_city[fsb_data$survey_city == 'chicago'] <- 'Chicago'
+fsb_data$survey_city[fsb_data$survey_city == 'cleveland'] <- 'Cleveland'
 
-## Review Column Values
+value_counts1 <- fsb_data %>%
+  group_by(survey_city) %>%
+  summarise(Count = n())
+value_counts1
+```
 
-* OH and Ohio and OHIO make one
+### survey_state
+
+Now that `survey_city` has been cleaned, we will review and clean the values of `survey_state`. Here, we will focus on making sure that all states are assigned a 2 letter identifier, and that all versions of that state's spelling in the data set have been updated to match that state's identifier. 
+
+```{r}
+# check values for survey_state
+value_counts <- fsb_data %>%
+  group_by(survey_state) %>%
+  summarise(Count = n())
+value_counts
+```
+
+```{r}
+# update values for survey_state to compare regional values
+fsb_data$survey_state[fsb_data$survey_state == 'Colorado'] <- 'CO'
+fsb_data$survey_state[fsb_data$survey_state == 'Colorado/ United States'] <- 'CO'
+fsb_data$survey_state[fsb_data$survey_state == 'Connecticut'] <- 'CT'
+fsb_data$survey_state[fsb_data$survey_state  == 'D.C.'] <- 'DC'
+fsb_data$survey_state[fsb_data$survey_state  == 'Delware'] <- 'DE'
+fsb_data$survey_state[fsb_data$survey_state == 'District of Columbia'] <- 'DC'
+fsb_data$survey_state[fsb_data$survey_state  == 'Florida'] <- 'FL'
+fsb_data$survey_state[fsb_data$survey_state  == 'Georgia'] <- 'GA'
+fsb_data$survey_state[fsb_data$survey_state  == 'Georgia, USA'] <- 'GA'
+fsb_data$survey_state[fsb_data$survey_state == 'IL, US'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state == 'IL, USA'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'IL, United States'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'IL/ USA'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'IL/USA'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'IN / USA'] <- 'IN'
+fsb_data$survey_state[fsb_data$survey_state  == 'Il'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'Illinois'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'Illinois / USA'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'Illinois, USA'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state == 'Illinois/ US'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'Illinois/USA'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'Kentucky'] <- 'KY'
+fsb_data$survey_state[fsb_data$survey_state == 'Kansas'] <- 'KS'
+fsb_data$survey_state[fsb_data$survey_state  == 'MA / USA'] <- 'MA'
+fsb_data$survey_state[fsb_data$survey_state  == 'MI / U.S.'] <- 'MI'
+fsb_data$survey_state[fsb_data$survey_state  == 'Maine'] <- 'ME'
+fsb_data$survey_state[fsb_data$survey_state  == 'Massachusetts, USA'] <- 'MA'
+fsb_data$survey_state[fsb_data$survey_state  == 'Michigan'] <- 'MI'
+fsb_data$survey_state[fsb_data$survey_state  == 'Michigan, Detroit'] <- 'MI'
+fsb_data$survey_state[fsb_data$survey_state  == 'Michigan'] <- 'MI'
+fsb_data$survey_state[fsb_data$survey_state  == 'Montana'] <- 'MT'
+fsb_data$survey_state[fsb_data$survey_state  == 'Minnesota'] <- 'MN'
+fsb_data$survey_state[fsb_data$survey_state  == 'N/A'] <- 'NA'
+fsb_data$survey_state[fsb_data$survey_state  == 'Nebraska'] <- 'NE'
+fsb_data$survey_state[fsb_data$survey_state  == 'New York'] <- 'NY'
+fsb_data$survey_state[fsb_data$survey_state  == 'New York, USA'] <- 'NY'
+fsb_data$survey_state[fsb_data$survey_state  == 'New york'] <- 'NY'
+fsb_data$survey_state[fsb_data$survey_state  == 'North Carolina'] <- 'NC'
+fsb_data$survey_state[fsb_data$survey_state  == 'OH, USA'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state == 'OH/USA'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state  == 'OH/Us'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state  == 'OHIO'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state == 'Oh'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state  == 'Ohio'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state  == 'Ohio / The United States'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state  == 'Ohio / USA'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state  == 'Ohio / United States'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state == 'Ohio, USA'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state == 'Ohio/ United States'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state  == 'Ohio/USA'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state == 'Ohio/United States'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state == 'Oregon'] <- 'OR'
+fsb_data$survey_state[fsb_data$survey_state == 'Pennsylvania'] <- 'PA'
+fsb_data$survey_state[fsb_data$survey_state == 'Rhode Island'] <- 'RI'
+fsb_data$survey_state[fsb_data$survey_state == 'TBA / USA'] <- 'NA'
+fsb_data$survey_state[fsb_data$survey_state == 'TBD'] <- 'NA'
+fsb_data$survey_state[fsb_data$survey_state  == 'TX/USA'] <- 'TX'
+fsb_data$survey_state[fsb_data$survey_state == 'Tennessee'] <- 'TN'
+fsb_data$survey_state[fsb_data$survey_state == 'Texas'] <- 'TX'
+fsb_data$survey_state[fsb_data$survey_state  == 'Texas/ USA'] <- 'TX'
+fsb_data$survey_state[fsb_data$survey_state  == 'US'] <- 'NA'
+fsb_data$survey_state[fsb_data$survey_state == 'USA'] <- 'NA'
+fsb_data$survey_state[fsb_data$survey_state  == 'United States'] <- 'NA'
+fsb_data$survey_state[fsb_data$survey_state  == 'Virgina'] <- 'VA'
+fsb_data$survey_state[fsb_data$survey_state  == 'Virginia (VA)'] <- 'VA'
+fsb_data$survey_state[fsb_data$survey_state  == 'Virginia/ USA'] <- 'VA'
+fsb_data$survey_state[fsb_data$survey_state  == 'Washington'] <- 'WA'
+fsb_data$survey_state[fsb_data$survey_state  == 'Washington D.C/United States'] <- 'DC'
+fsb_data$survey_state[fsb_data$survey_state  == 'Wisconsin'] <- 'WI'
+fsb_data$survey_state[fsb_data$survey_state  == 'Wisconsin / USA'] <- 'WI'
+fsb_data$survey_state[fsb_data$survey_state  == 'iL'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'illinois'] <- 'IL'
+fsb_data$survey_state[fsb_data$survey_state  == 'na'] <- 'NA'
+fsb_data$survey_state[fsb_data$survey_state  == 'new york'] <- 'NY'
+fsb_data$survey_state[fsb_data$survey_state == 'oh'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state == 'ohio'] <- 'OH'
+fsb_data$survey_state[fsb_data$survey_state == 'California'] <- 'CA'
+fsb_data$survey_state[fsb_data$survey_state == 'Delaware'] <- 'DE'
+fsb_data$survey_state[fsb_data$survey_state == 'Indiana'] <- 'IN'
+fsb_data$survey_state[fsb_data$survey_state == 'Virginia'] <- 'VA'
+fsb_data$survey_state[fsb_data$survey_state %in% c("NA")] <- NA
+
+
+value_counts2 <- fsb_data %>%
+  group_by(survey_state) %>%
+  summarise(Count = n())
+value_counts2
+```
+
+### survey_salary
+
+Nect, we will review and clean the values of `survey_salary`. Here, we will look for any non-numeric variables in the data. 
+
+```{r}
+# check values for survey_salary
+value_counts <- fsb_data %>%
+  group_by(survey_salary) %>%
+  summarise(Count = n())
+value_counts
+
+# nothing to change here
+```
+
+### survey_deptfunc
+
+Since `survey_salary` did not need any cleaning of its values, we will move on to cleaning `survey_deptfunc`. To make the values of this column match, we will use functions to strip the values and only return the first recorded value for the column. We decided to only return the first recordered function because it is possibly the most relevant since the student entered it first, and it makes our data much cleaner and more concise for our analysis.
+
+```{r}
+# check values for survey_deptfunc
+value_counts <- fsb_data %>%
+  group_by(survey_deptfunc) %>%
+  summarise(Count = n())
+value_counts
+
+# only get first department entered in the field
+for (i in 1:nrow(fsb_data)) {
+  split_result <- unlist(strsplit(fsb_data$survey_deptfunc[i], "/"))
+  fsb_data$top_dept_func[i] <- split_result[1]
+}
+
+for (i in 1:nrow(fsb_data)) {
+  split_result <- unlist(strsplit(fsb_data$top_dept_func[i], " "))
+  fsb_data$top_dept_func2[i] <- split_result[1]
+}
+
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Accounting\r\n'] <- 'Accounting'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Accounting,'] <- 'Accounting'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Actuary\r\n'] <- 'Actuary'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Analytics\r\n'] <- 'Analytics'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Consulting\r\n'] <- 'Consulting'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Analytics\r\n'] <- 'Analytics'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Finance\r\n'] <- 'Finance'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'General'] <- 'General Management'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Human'] <- 'HR'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Information'] <- 'IT'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Mareting'] <- 'Marketing'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Logisitics'] <- 'Logistics'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Merchant'] <- 'Merchant Services'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Logisitics'] <- 'Logistics'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 == 'Other:'] <- 'Other'
+fsb_data$top_dept_func2[fsb_data$top_dept_func2 %in% c("Claudine", "E&J", "Green", "Hemprise", "PopSquare", "Tip-off")] <- NA
+
+value_counts1 <- fsb_data %>%
+  group_by(top_dept_func2) %>%
+  summarise(Count = n())
+value_counts1
+```
+
+```{r}
+# change name of new column to survey_deptfunc column
+fsb_data <- fsb_data[, !(colnames(fsb_data) %in% "top_dept_func")]
+fsb_data <- fsb_data[, !(colnames(fsb_data) %in% "survey_deptfunc")]
+names(fsb_data)[names(fsb_data) == "top_dept_func2"] <- "survey_deptfunc"
+```
 
 
 ## Checking for Missing Values
 
-### Imputing Missing Values
+Now, we will be checking the data for missing values and imputing where necessary. We expect many NA values for certain columns such as survey_gradprogram, since the filtered data excludes students continuing their education after college. We will focus our efforts at this stage on the earlier identified critical columns.
 
 ```{r}
-colSums(is.na(fsb_data))
+# before imputing missing values
+missing_values <- colSums(is.na(fsb_data))
+missing_values
 ```
+
+
+```{r}
+# Imputing relevant variables for our analysis
+fsb_data$survey_city <- ifelse(is.na(fsb_data$survey_city), "Unknown", fsb_data$survey_city)
+fsb_data$survey_state <- ifelse(is.na(fsb_data$survey_state), "Unknown", fsb_data$survey_state)
+fsb_data$survey_company <- ifelse(is.na(fsb_data$survey_company), "Unknown", fsb_data$survey_company)
+fsb_data$survey_deptfunc <- ifelse(is.na(fsb_data$survey_deptfunc), "Unknown", fsb_data$survey_deptfunc)
+
+# getting mean salary for each major
+result <- fsb_data %>%
+  group_by(major1) %>%
+  summarise(Mean_Salary = mean(survey_salary, na.rm = TRUE))
+
+for (i in 1:nrow(fsb_data)) {
+  if (is.na(fsb_data$survey_salary[i])) {
+    major <- fsb_data$major1[i]
+    mean_salary <- result$Mean_Salary[result$major1 == major]
+    fsb_data$survey_salary[i] <- mean_salary
+  }
+}
+fsb_data$survey_salary[fsb_data$survey_salary== 'NaN'] <- NA
+fsb_data$survey_salary <- ifelse(is.na(fsb_data$survey_salary), mean_salary, fsb_data$survey_salary)
+
+missing_values <- colSums(is.na(fsb_data))
+missing_values
+```
+
+## Create Column
+
+Finally, we will need to create a region column to be able to perform our analysis of career outcomes and salary by region. We will use the official list of regions from the US Census Bureau to guide our variable creation and we will group states together into different regional values. 
+
+```{r}
+fsb_data$Region <- ifelse(fsb_data$survey_state %in% 
+                            c("CA", "OR", "WA", "NV", "ID", "MT", "WY", "UT", "CO", "AZ", "NM"), "West",
+                    ifelse(fsb_data$survey_state %in% 
+                             c("ND", "SD", "NE", "KS", "MO", "IA", "IL", "IN", "OH", "MI", "WI", "IA", "MN"), "Midwest",
+                    ifelse(fsb_data$survey_state %in% 
+                             c("PA", "NY", "NJ", "CT", "RI", "MA", "VT", "NH", "NE"), "Northeast",
+                    ifelse(fsb_data$survey_state %in% 
+                             c("FL", "GA", "AL", "SC", "NC", "VA", "DE", "MD", "DC", "WV", "KY", "TN", "AR", "MS", "LA", "OK", "TX"), "Southeast", "Other"))))
+
+value_counts <- fsb_data %>%
+  group_by(Region) %>%
+  summarise(Count = n())
+value_counts
+```
+
+## Changing Column Types 
+
+Now that we have cleaned the values of our critical variables, we are finally able to review their column types. We feel that the following variables should have their types changed.
+
+* `survey_city` should be a factor
+
+* `survey_state` should be a factor
+
+* `Region` should be a factor
+
+* `survey_deptfunc` should be a factor
+
+Now, we will switch these columns from character to factor type. 
+
+```{r}
+fsb_data$survey_city <- as_factor(fsb_data$survey_city)
+fsb_data$survey_state <- as_factor(fsb_data$survey_state)
+fsb_data$Region <- as_factor(fsb_data$Region)
+fsb_data$survey_deptfunc <- as_factor(fsb_data$survey_deptfunc)
+```
+
+
+# Visualize Cleaned Data
+
+Finally, we will visualize our final cleaned data set that is ready to be analyzed. 
+
+```{r}
+glimpse(fsb_data)
+```
+
+# Documentation
+
+This RMarkdown document was created on RStudio using Version 2023.06.2+561 (2023.06.2+561). This document was originally rendered on 10.12.2023.
+
+
