@@ -7,7 +7,7 @@ output:
 ---
 <style>
   body {
-    background-color: #FF9999; 
+    background-color: #ffe3e3; 
   }
   
   .navbar {
@@ -36,6 +36,16 @@ pacman::p_load(tidyverse, #for data manipulation
                DT #for better tables
                )
 ```
+
+# Question Overview {data-orientation=columns}
+
+## row {data-width=1000}
+
+
+With this analysis, we will be answering the question surrounding FSB student's job placements post-graduation.
+We will look at geographic trends to see where our students are going based on region, salary differentials by region,
+what types of jobs students are getting by region, and finally, the top 3-5 job categories by city 
+(Chicago, Cincinnati, Columbus, and Cleveland).
 
 
 
