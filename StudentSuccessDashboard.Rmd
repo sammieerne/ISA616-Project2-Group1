@@ -43,10 +43,12 @@ pacman::p_load(tidyverse, #for data manipulation
 
 #### Question Overview: 
 
-With this analysis, we will be answering the question surrounding FSB student's job placements post-graduation.
-We will look at geographic trends to see where our students are going based on region, salary differentials by region,
-what types of jobs students are getting by region, and finally, the top 3-5 job categories by city 
-(Chicago, Cincinnati, Columbus, and Cleveland). These insights will aid FSB in being able to market to potential students and employers, guide students in their job search, and much more.
+In this analysis, we will be exploring FSB student's post-graduation job placements. We will be answering the question of:
+
+`Where are FSB students moving after graduation, how much money are they making by region, and what job categories are most popular in different geographic areas?`
+
+The insights provided from our analysis will aid our client in being able to market FSB to potential students and employers, guide students in their job search, and much more.
+
 
 #### Insights and Links: 
 
@@ -96,7 +98,7 @@ Overview of survey responses
 
 
 
-# Cost by City {data-orientation=columns}
+# Top Job Categories by City {data-orientation=columns}
 
 ## Column {data-width=500}
 
@@ -112,7 +114,7 @@ Overview of survey responses
 ### Cleveland
 
 
-# Cost by Region {data-orientation=columns}
+# Top Job Categories by Region {data-orientation=columns}
 
 ## Column {data-width=500}
 
