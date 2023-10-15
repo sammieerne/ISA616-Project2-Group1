@@ -41,12 +41,14 @@ pacman::p_load(tidyverse, #for data manipulation
 
 ## row {data-width=1000}
 
+#### Question Overview: 
 
 With this analysis, we will be answering the question surrounding FSB student's job placements post-graduation.
 We will look at geographic trends to see where our students are going based on region, salary differentials by region,
 what types of jobs students are getting by region, and finally, the top 3-5 job categories by city 
-(Chicago, Cincinnati, Columbus, and Cleveland).
+(Chicago, Cincinnati, Columbus, and Cleveland). These insights will aid FSB in being able to market to potential students and employers, guide students in their job search, and much more.
 
+#### Insights and Links: 
 
 
 # Survey Overview {data-orientation=columns}
