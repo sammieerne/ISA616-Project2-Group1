@@ -23,18 +23,29 @@ output:
 </style>
 
 
-
 ```{r setup, include=FALSE,echo=FALSE}
 knitr::opts_chunk$set(echo = TRUE,message=FALSE,warning=FALSE)
 
 #package intialization
 if(require(pacman)==FALSE) install.packages("pacman")
 pacman::p_load(tidyverse, #for data manipulation
+               purrr,
+               usmap,
                plotly, #for interactive plots
                flexdashboard, #to make a dashboard
                fontawesome, #for icons
                DT #for better tables
                )
+
+#read in data
+fsb_data=readRDS("fsb_data_CLEANED.rds")
+
+library(scales)
+```
+
+```{r, include=FALSE,echo=FALSE}
+#install.packages('forcats')
+pacman::p_load(forcats)
 ```
 
 # Question Overview {data-orientation=columns}
@@ -45,12 +56,26 @@ pacman::p_load(tidyverse, #for data manipulation
 
 In this analysis, we will be exploring FSB student's post-graduation job placements. We will be answering the question of:
 
-`Where are FSB students moving after graduation, how much money are they making by region, and what job categories are most popular in different geographic areas?`
+`Where are FSB students moving after graduation, how much money are they making by region, and what job categories are
+most popular in different geographic areas?`
 
 The insights provided from our analysis will aid our client in being able to market FSB to potential students and employers, guide students in their job search, and much more.
 
 
-#### Insights and Links: 
+### Insights and Links: 
+#### Survey Overview
+In the survey overview section, we have observed that, following the cleansing of the FSB graduate data for the years 2019-2021, we now have 2,304 usable responses. Furthermore, among all the graduates, 51% have obtained a job after graduating.
+Furthermore, when examining the top job placements by region, it is revealed that 1,438 graduates chose to remain in the Midwest. The leading fields for employment across all regions are accounting (352), marketing (244), and finance (237).
+
+#### Geography
+The state and region placement map reveals that Ohio has the highest state placement, while the Midwest claims the highest regional placement. Additionally, the west has the highest salary, but when comparing to cost of living by region, this ranking is logical. According to the Missouri Economic Research and Information Center (MERIC), California ranks as the state with the highest cost of living, closely followed by several Northeastern states. You can find more information here: https://meric.mo.gov/data/cost-living-data-series
+
+Furthermore, when looking at the original average salary, you can see that Chicago has the highest salary. However when adjusting for cost-of-living in those areas, you can see that Columbus has the highest salary for FSB students after graduation. 
+
+#### Top Job Categories By City and Region
+Accounting stands out as the primary job category in each of the four cities: Columbus, Cincinnati, Cleveland, and Chicago. Marketing, analytics, and consulting are additional job categories largely seen in those four cities. 
+
+Nonetheless, we see greater differences between the top job categories across regions with Midwest and West being accounting, Northeast's being Finance, and Southeast being marketing. 
 
 
 # Survey Overview {data-orientation=columns}
@@ -59,73 +84,403 @@ Overview of survey responses
   
 ## row {data-width=300}
 
-### Response Rate
-
 ### Usable Responses
+
+```{r,echo=FALSE}
+nusable=nrow(fsb_data)
+
+valueBox(nusable, icon= "fa-users")
+# you can find the icons here:https://fontawesome.com/icons
+# note that I have been unable to get all icons to work
+```   
+
 
 ### Students with Jobs
 
-
-
+```{r,echo=FALSE}
+rate= round(100* nrow(fsb_data)/4000, 0)
+gauge(rate, min=0, max=100, symbol= '%', gaugeSectors(
+  success= c(80,100), warning= c(40,79), danger= c(0,39)
+))
+```
 
 ## row {data-height=600}
 
 ### Region of Job Placements
 
-### Job Types
+```{r, echo=FALSE}
+p= ggplot(fsb_data, aes(reorder(fsb_data$Region, fsb_data$Region,function(x)-length(x)))) +
+  geom_bar(color= 'brown3', fill='brown3') +
+  xlab("Job Region") +
+  ylab("Number of Responses") +
+  theme_bw()
+  
+ggplotly(p)
+```
+
+### Top 10 Job Types
     
+```{r, echo=FALSE}
+deptfunc_counts <- fsb_data %>%
+  group_by(survey_deptfunc) %>%
+  summarise(ResponseCount = n()) %>%
+  top_n(10, ResponseCount)  # Select the top 10 levels with highest responses
 
+# Arrange the data frame by ResponseCount in descending order
+deptfunc_counts <- deptfunc_counts %>%
+  arrange(desc(ResponseCount))
 
+p <- ggplot(deptfunc_counts, aes(x = reorder(survey_deptfunc, -ResponseCount), y = ResponseCount)) +
+  geom_bar(stat = "identity", color = 'brown3', fill = 'brown3') +
+  xlab("Department/Functional Area") +
+  ylab("Number of Responses") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotate labels
 
-   
+ggplotly(p)
+```
 
 # Geography {data-orientation=columns}
 
-## Column {data-width=600}
-
-### Region Placement
+## Column {data-width=500}
 
 ### State Placement
 
+```{r, echo= FALSE}
+library(usmap)
+
+data <- data.frame(
+  state = c("OH", "NY", "GA", "IL", "KS", "MN", "NC", "KY", "TX", "NV", "IN", "WI", "MA", "MI", "CO", "WA", "DC", "CA", "NJ", "UT", "MO", "IA", "PA", "VA", "RI", "AZ", "ME", "CT", "MD", "FL", "TN", "MT", "AR", "OR", "MS", "LA", "DE", "SC", "NH", "NE"),  
+  count = c(739, 75, 22, 546, 10, 20, 23, 18, 28, 2, 45, 25, 32, 35, 30, 9, 13, 43, 12, 1, 14, 2, 34, 18, 9, 6, 2, 9, 5, 23, 7, 1, 3, 2, 1, 1, 1, 1, 1, 1)  
+)
+
+p <- plot_usmap(data = data, values = "count", color = "pink") + 
+  scale_fill_continuous(
+    low = "white", high = "red", name = "Student Jobs per State", label = scales::comma
+  ) + theme(legend.position = "right")
+ggplotly(p)
+```
 
 
+### Region Placement
 
-## Column {data-width=400}
+```{r, echo= FALSE}
+library(usmap)
 
-### Salary by Region
+data <- data.frame(
+  state = c("OH", "NY", "GA", "IL", "KS", "MN", "NC", "KY", "TX", "NV", "IN", "WI", "MA", "MI", "CO", "WA", "DC", "CA", "NJ", "UT", "MO", "IA", "PA", "VA", "RI", "AZ", "ME", "CT", "MD", "FL", "TN", "MT", "AR", "OR", "MS", "LA", "DE", "SC", "NH", "NE", "AL", "AK", "HI", "ND", "SD", "VT", "WV", "WY", "ID", "OK", "NM"),  
+  count = c(1438, 172, 164, 1438, 1438, 1438, 164, 164, 94, 94, 1438, 1438, 172, 1438, 94, 94, 172, 94, 172, 94, 1438, 1438, 172, 164, 172, 94, 172, 172, 172, 164, 164, 94, 164, 94, 164, 164, 172, 164, 172, 1438, 164, 94, 94, 1438, 1438, 172, 164, 94, 94, 164, 94)  
+)
 
-### Salary by City Adjusted for Cost of Living
+p <- plot_usmap(data = data, values = "count", color = "pink") + 
+  scale_fill_continuous(
+    low = "white", high = "red", name = "Student Jobs per State", label = scales::comma
+  ) + theme(legend.position = "right")
 
+ggplotly(p)
+```
+
+## Column {data-width=500}
+
+### Average Salary by Region
+
+```{r, echo= FALSE}
+avg_salary_data <- fsb_data %>%
+  group_by(Region) %>%
+  summarise(AvgSalary = mean(survey_salary))
+
+# Create the bar chart with the average salary for each region
+p <- ggplot(avg_salary_data, aes(x = reorder(Region, -AvgSalary), y = AvgSalary)) +
+  geom_bar(stat = "identity", color = 'brown3', fill = 'brown3') +
+  geom_text(aes(label = dollar(round(AvgSalary, 2)), vjust = -0.5), color = "black", size = 3) + 
+  xlab("Job Region") +
+  ylab("Average Salary") +
+  theme_bw()
+
+ggplotly(p)
+```
+
+
+### Average Salary by City
+
+```{r, echo= FALSE}
+selected_cities <- c("Chicago", "Cincinnati", "Cleveland", "Columbus")
+filtered_data <- fsb_data %>%
+  filter(survey_city %in% selected_cities)
+
+avg_salary_data <- filtered_data %>%
+  group_by(survey_city) %>%
+  summarise(AvgSalary = mean(survey_salary))
+
+p <- ggplot(avg_salary_data, aes(x = reorder(survey_city, -AvgSalary), y = AvgSalary)) +
+  geom_bar(stat = "identity", color = 'brown3', fill = 'brown3') +
+  geom_text(aes(label = dollar(round(AvgSalary, 2)), vjust = -0.5), color = "black", size = 3) + 
+  xlab("City") +
+  ylab("Average Salary") +
+  theme_bw()
+
+ggplotly(p)
+```
+
+
+### Average Salary by City Adjusted for Cost-of-Living Differences (using Cincinnati as base)
+
+```{r, echo= FALSE}
+cost_adjustments <- data.frame(
+  Region = c("Cincinnati", "Cleveland", "Columbus", "Chicago"),
+  CostAdjustment = c(1, 0.99, 0.94, 1.28)
+)
+
+adjusted_data <- fsb_data %>%
+  left_join(cost_adjustments, by = c("survey_city" = "Region"))
+
+adjusted_data <- adjusted_data %>%
+  mutate(CostAdjustedSalary = survey_salary / CostAdjustment)
+
+selected_cities <- c("Chicago", "Cincinnati", "Cleveland", "Columbus")
+filtered_data <- adjusted_data %>%
+  filter(survey_city %in% selected_cities)
+
+avg_salary_data <- filtered_data %>%
+  group_by(survey_city) %>%
+  summarise(AvgCostAdjustedSalary = mean(CostAdjustedSalary))
+
+p <- ggplot(avg_salary_data, aes(x = reorder(survey_city, -AvgCostAdjustedSalary), y = AvgCostAdjustedSalary)) +
+  geom_bar(stat = "identity", color = 'brown3', fill = 'brown3') +
+  geom_text(aes(label = dollar(round(AvgCostAdjustedSalary, 2))), color = "black", size = 3) + 
+  xlab("City") +
+  ylab("Avg COL-Adj Salary") +
+  theme_bw()
+
+ggplotly(p)
+```
 
 
 # Top Job Categories by City {data-orientation=columns}
 
 ## Column {data-width=500}
 
-### Chicago
-
 ### Columbus
 
+```{r, echo=FALSE}
+library(dplyr)
+city_of_interest <- "Columbus"
 
+# Filter the data 
+filtered_data <- fsb_data %>% filter(survey_city == city_of_interest)
+
+# Group the data by job category 
+category_counts <- filtered_data %>% group_by(survey_deptfunc) %>% summarise(count = n())
+
+# descending order
+category_counts <- category_counts %>% arrange(desc(count))
+
+# Get the top job categories
+top_categories <- head(category_counts, n = 5)  # You can adjust 'n' to get more or fewer top categories
+
+
+
+p <- ggplot(top_categories, aes(x = reorder(survey_deptfunc, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "brown3") +
+  labs(x = "Job Category", y = "Count of Responses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+```
+### Chicago
+
+```{r, echo=FALSE}
+library(dplyr)
+city_of_interest <- "Chicago"
+
+# Filter the data 
+filtered_data <- fsb_data %>% filter(survey_city == city_of_interest)
+
+# Group the data by job category 
+category_counts <- filtered_data %>% group_by(survey_deptfunc) %>% summarise(count = n())
+
+# descending order
+category_counts <- category_counts %>% arrange(desc(count))
+
+# Get the top job categories
+top_categories <- head(category_counts, n = 5)  # You can adjust 'n' to get more or fewer top categories
+
+
+
+p <- ggplot(top_categories, aes(x = reorder(survey_deptfunc, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "brown3") +
+  labs(x = "Job Category", y = "Count of Responses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+```
 ## Column {data-width=500}
 
 ### Cincinnati
+```{r, echo=FALSE}
+library(dplyr)
+city_of_interest <- "Cincinnati"
 
+# Filter the data 
+filtered_data <- fsb_data %>% filter(survey_city == city_of_interest)
+
+# Group the data by job category 
+category_counts <- filtered_data %>% group_by(survey_deptfunc) %>% summarise(count = n())
+
+# descending order
+category_counts <- category_counts %>% arrange(desc(count))
+
+# Get the top job categories
+top_categories <- head(category_counts, n = 5)  # You can adjust 'n' to get more or fewer top categories
+
+
+
+p <- ggplot(top_categories, aes(x = reorder(survey_deptfunc, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "brown3") +
+  labs(x = "Job Category", y = "Count of Responses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+```
 ### Cleveland
+```{r, echo=FALSE}
+library(dplyr)
+city_of_interest <- "Cleveland"
 
+# Filter the data 
+filtered_data <- fsb_data %>% filter(survey_city == city_of_interest)
+
+# Group the data by job category 
+category_counts <- filtered_data %>% group_by(survey_deptfunc) %>% summarise(count = n())
+
+# descending order
+category_counts <- category_counts %>% arrange(desc(count))
+
+# Get the top job categories
+top_categories <- head(category_counts, n = 5)  # You can adjust 'n' to get more or fewer top categories
+
+
+p <- ggplot(top_categories, aes(x = reorder(survey_deptfunc, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "brown3") +
+  labs(x = "Job Category", y = "Count of Responses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+```
 
 # Top Job Categories by Region {data-orientation=columns}
 
 ## Column {data-width=500}
 
 ### Midwest
+```{r, echo=FALSE}
+library(dplyr)
+region_of_interest <- "Midwest"
 
-### North-East
+# Filter the data 
+filtered_data <- fsb_data %>% filter(Region == region_of_interest)
 
+# Group the data by job category 
+category_counts <- filtered_data %>% group_by(survey_deptfunc) %>% summarise(count = n())
+
+# descending order
+category_counts <- category_counts %>% arrange(desc(count))
+
+# Get the top job categories
+top_categories <- head(category_counts, n = 5)  # You can adjust 'n' to get more or fewer top categories
+
+
+p <- ggplot(top_categories, aes(x = reorder(survey_deptfunc, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "brown3") +
+  labs(x = "Job Category", y = "Count of Responses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+```
+### Northeast
+```{r, echo=FALSE}
+library(dplyr)
+region_of_interest <- "Northeast"
+
+# Filter the data 
+filtered_data <- fsb_data %>% filter(Region == region_of_interest)
+
+# Group the data by job category 
+category_counts <- filtered_data %>% group_by(survey_deptfunc) %>% summarise(count = n())
+
+# descending order
+category_counts <- category_counts %>% arrange(desc(count))
+
+# Get the top job categories
+top_categories <- head(category_counts, n = 5)  # You can adjust 'n' to get more or fewer top categories
+
+
+p <- ggplot(top_categories, aes(x = reorder(survey_deptfunc, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "brown3") +
+  labs(x = "Job Category", y = "Count of Responses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+```
 
 ## Column {data-width=500}
 
 ### West
+```{r, echo=FALSE}
+library(dplyr)
+region_of_interest <- "West"
 
-### South
+# Filter the data 
+filtered_data <- fsb_data %>% filter(Region == region_of_interest)
 
+# Group the data by job category 
+category_counts <- filtered_data %>% group_by(survey_deptfunc) %>% summarise(count = n())
+
+# descending order
+category_counts <- category_counts %>% arrange(desc(count))
+
+# Get the top job categories
+top_categories <- head(category_counts, n = 5)  # You can adjust 'n' to get more or fewer top categories
+
+
+p <- ggplot(top_categories, aes(x = reorder(survey_deptfunc, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "brown3") +
+  labs(x = "Job Category", y = "Count of Responses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+```
+### Southeast
+
+```{r, echo=FALSE}
+library(dplyr)
+region_of_interest <- "Southeast"
+
+# Filter the data 
+filtered_data <- fsb_data %>% filter(Region == region_of_interest)
+
+# Group the data by job category 
+category_counts <- filtered_data %>% group_by(survey_deptfunc) %>% summarise(count = n())
+
+# descending order
+category_counts <- category_counts %>% arrange(desc(count))
+
+# Get the top job categories
+top_categories <- head(category_counts, n = 5)  # You can adjust 'n' to get more or fewer top categories
+
+
+p <- ggplot(top_categories, aes(x = reorder(survey_deptfunc, -count), y = count)) +
+  geom_bar(stat = "identity", fill = "brown3") +
+  labs(x = "Job Category", y = "Count of Responses") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+ggplotly(p)
+```
