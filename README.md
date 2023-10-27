@@ -18,6 +18,6 @@ Our solution will be a dashboard with maps, graphs, and charts to show regional 
 
 [Data Cleaning](https://github.com/sammieerne/ISA616-Project2-Group1/tree/82e0e50fc9665d5b515f1310d8c6083f3ed57cc2/FSBDataClean): Contains code used to clean our dataset and perform EDA to get our data ready for analysis.
 
-[Dashboard]()
+[Dashboard](https://github.com/sammieerne/ISA616-Project2-Group1/tree/f257e9df2ab670520600b458e3305de286e09cb3/StudentSuccessDashboard): Contains code and our knitted dashboard which is the solution for our project.
 
 
