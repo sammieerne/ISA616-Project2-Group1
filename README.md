@@ -15,3 +15,9 @@ Our solution will be a dashboard with maps, graphs, and charts to show regional 
 [Business Value Proposition](https://github.com/sammieerne/ISA616-Project2-Group1/tree/0e9ea81bd7ddf07e85990dedd7d690238b80434e/BusinessValueProposition): This folder contains our business value proposition for the project, where we describe in detail who our clients are, what we will be delivering to them, and what they will gain from our solution. 
 
 [Images](https://github.com/sammieerne/ISA616-Project2-Group1/tree/3405db9f4ee7efd78cbeeafbef847d0f9f33da67/Images): Contains images used in our project as well as images used on our GitHub page.
+
+[Data Cleaning](https://github.com/sammieerne/ISA616-Project2-Group1/tree/82e0e50fc9665d5b515f1310d8c6083f3ed57cc2/FSBDataClean): Contains code used to clean our dataset and perform EDA to get our data ready for analysis.
+
+[Dashboard]()
+
+
